@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.art.IArticleOperation">
+
+	<!-- User join Article进行联合查询  (一对一)-->    
+    <resultMap id="articleResultMap" type="com.art.Article">
+        <id property="id" column="id" />
+        <result property="title" column="title" />
+        <result property="content" column="content" />
+        <!-- 将article的user属性映射到userResultMap -->
+        <association property="user" column="user_id" javaType="com.art.User">
+	        <!-- 属性名和数据库列名映射 -->
+	        <id property="id" column="user_id"  />
+	        <result property="userName" column="user_name"  />
+	        <result property="userAddress" column="user_address"  />
+        </association>
+    </resultMap>
+    
+    <!-- 使用别名来映射匹配 -->
+    <select id="getUserArticles" parameterType="int" resultMap="articleResultMap" >
+       select `user`.id AS user_id,`user`.user_name ,`user`.user_address ,
+       article.id,article.title,article.content 
+       from `user`,article 
+       where `user`.id=article.user_id and `user`.id=#{id}
+    </select>
+    
+    <!-- 另一种联合查询  (一对一)的实现，但是这种方式有“N+1”的问题 -->
+   <!--  <resultMap id="articleResultMap" type="Article">
+        <id property="id" column="article_id" />
+        <result property="title" column="article_title" />
+        <result property="content" column="article_content" />
+        <association property="user" javaType="User" column="userid" select="selectUser"/>  
+    </resultMap>
+    
+    <select id="selectUser" parameterType="int" resultType="User">
+        select * from user where id = #{id}
+	</select> -->
+    
+</mapper>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.art.IBlogOperation">
+
+    <resultMap id="userResultMap" type="com.art.User">
+       <!-- 属性名和数据库列名映射 -->
+        <id property="id" column="user_id"  />
+        <result property="userName" column="user_name"  />
+        <result property="userAddress" column="user_address"  />
+    </resultMap>
+    
+    <resultMap id="articleResultMap" type="com.art.Article">
+        <id property="id" column="art_id" />
+        <result property="title" column="art_title" />
+        <result property="content" column="art_content" />
+        <association property="user" javaType="com.art.User" resultMap="userResultMap"/>  
+    </resultMap>
+    <!-- javaType 指定对象类型，ofType 指定集合类型 -->
+    <resultMap id="blogResultMap" type="com.art.Blog">
+        <id property="id" column="blog_id" />
+        <result property="title" column="title" />
+        <!-- 将article list属性映射到collection -->
+        <collection property="articles" ofType="com.art.Article" resultMap="articleResultMap"/>
+    </resultMap>
+    
+    <!-- select语句 ,注意:sql中如果包含相同字段名必须以别名形式定义字段名，特别是主键id，一般多个表中主键名称都是id，所以必须修改id字段别名,如：用户表'id'修改为'user_id'-->
+    <select id="getBlogByID" parameterType="int" resultMap="blogResultMap">
+       select `user`.id user_id,`user`.user_name,`user`.user_address,
+      
+       article.id art_id,article.title art_title,article.content art_content, 
+       blog.id blog_id, blog.title
+       from `user`,article,blog 
+       where user.id=article.user_id and blog.id=article.blog_id and blog.id=#{id}
+    </select>
+    
+</mapper>
+
